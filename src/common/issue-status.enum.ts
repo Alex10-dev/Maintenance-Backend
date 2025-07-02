@@ -1,0 +1,5 @@
+export enum IssueStatus {
+    REQUESTED = 'REQUESTED',
+    COMPLETED = 'COMPLETED',
+    WORK_IN_PROGRESS = 'WORK_IN_PROGRESS',
+}

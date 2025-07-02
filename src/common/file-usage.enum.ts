@@ -1,0 +1,5 @@
+export enum FileUsage {
+    ISSUE_REPORT = 'ISSUE_REPORT',
+    PROFILE_PHOTO = 'PROFILE_PHOTO',
+    ATTACHMENT = 'ATTACHMENT'
+}

@@ -1,0 +1,256 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model Role {
+  id String @id @db.Uuid @default(uuid())
+  name String @db.VarChar(30) @unique
+  description String @db.Text
+  isActive Boolean @db.Boolean @default(true) @map("is_active")
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+
+  //relations
+  userRoles UserRole[]
+}
+
+model User {
+  id String @id @db.Uuid @default(uuid())
+  name String @db.VarChar(50)
+  lastName String @db.VarChar(50) @map("last_name")
+  birthdate DateTime @db.Timestamp()
+  gender String @db.VarChar(10) @default("UNSPECIFIED")
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+  isActive Boolean @db.Boolean @default(true) @map("is_active")
+
+  //relations
+  photoId String? @db.Uuid @unique @map("photo_id")
+  photo File? @relation("UserPhoto", fields: [photoId], references: [id])
+
+  userRoles UserRole[]
+  userAuth Auth[]
+  userFiles File[]
+  userIssuesCreated Issue[] @relation("IssueCreatedByUser")
+  userIssuesCompleted Issue[] @relation("IssueCompletedByUser")
+  userTaskCreated Task[] @relation("TaskCreatedByUser")
+  assignedTasks UserAssignedToTask[]
+  userComments Comment[]
+}
+
+model UserRole {
+  id String @id @db.Uuid @default(uuid())
+  
+  //relations
+  userId String @db.Uuid @map("user_id")
+  user User @relation(fields: [userId], references: [id])
+
+  roleId String @db.Uuid @map("role_id")
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+}
+
+model Auth {
+  id String @id @db.Uuid @default(uuid())
+  providerId String? @db.VarChar(255)
+  password String? @db.VarChar(128)
+  validated Boolean @db.Boolean @default(false)
+  isActive Boolean @db.Boolean @default(true) @map("is_active")
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamp() @updatedAt @map("updated_at") 
+  type String @db.VarChar(20) @default("CREDENTIALS") 
+
+  //RELATIONS
+  userId String @db.Uuid @map("user_id")
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([type, providerId])
+  @@index([userId])
+}
+
+model File {
+  id String @id @db.Uuid @default(uuid())
+  bucketName String @db.VarChar(255) @map("bucket_name")
+  key String @db.VarChar(512)
+  uploadedAt DateTime @db.Timestamp() @default(now()) @map("uploaded_at")
+  originalFileName String? @db.Text @map("original_file_name")
+  fileSize Float @db.Real @map("file_size")
+  mimeType String @db.VarChar(100) @map("mime_type")
+  usage String @db.VarChar(20)
+
+  //relations
+  uploadedById String @db.Uuid @map("uploaded_by_id")
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
+
+  userPhotoFor User? @relation("UserPhoto")
+
+  issueFile IssueFile[]
+  taskFile TaskFile[]
+  commentFile CommentFile[]
+
+  @@index([uploadedById])
+}
+
+model Issue {
+  id String @id @db.Uuid @default(uuid())
+  description String @db.Text
+  status String @db.VarChar(20) @default("REQUESTED")
+  deviceType String @db.VarChar(20) @default("OTHER") @map("device_type")
+  qrToken String? @db.Uuid @map("qr_token")
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamp() @updatedAt @map("updated_at")
+  completedAt DateTime? @db.Timestamp() @map("completed_at")
+  isCompleted Boolean @db.Boolean @default(false) @map("is_completed")
+
+  //relations
+  createdById String @db.Uuid @map("created_by_id")
+  createdBy User @relation("IssueCreatedByUser", fields: [createdById], references: [id]) 
+
+  completedById String? @db.Uuid @map("completed_by_id")
+  completedBy User? @relation("IssueCompletedByUser", fields: [completedById], references: [id])
+
+  issueFiles IssueFile[]
+  issueComments IssueComment[]
+
+  @@index([createdById])
+}
+
+model IssueFile {
+  id String @id @db.Uuid @default(uuid())
+
+  //relations
+  issueId String @db.Uuid @map("issue_id")
+  issue Issue @relation(fields: [issueId], references: [id])
+
+  fileId String @db.Uuid @map("file_id")
+  file File @relation(fields: [fileId], references: [id])
+
+  @@unique([issueId, fileId])
+  @@index([issueId])
+}
+
+model Task {
+  id String @id @db.Uuid @default(uuid())
+  description String @db.Text
+  status String @db.VarChar(20) @default("PENDING")
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+  isCompleted Boolean @db.Boolean @default(false) @map("is_completed")
+  completedAt DateTime? @db.Timestamp() @map("completed_at")
+  updatedAt DateTime @db.Timestamp() @updatedAt @map("updated_at")
+
+  //relations
+  createdById String @db.Uuid @map("created_by_id")
+  createdBy User @relation("TaskCreatedByUser", fields: [createdById], references: [id])
+
+  assignedUsers UserAssignedToTask[]
+  taskFiles TaskFile[]
+  taskComments TaskComment[]
+
+  @@index([createdById])
+}
+
+model UserAssignedToTask {
+  id String @id @db.Uuid @default(uuid())
+
+  //relations
+  taskId String @db.Uuid @map("task_id")
+  task Task @relation(fields: [taskId], references: [id])
+
+  userId String @db.Uuid @map("user_id")
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([taskId, userId])
+  @@index([taskId, userId])
+  @@index([taskId])
+  @@index([userId])
+}
+
+model TaskFile {
+  id String @id @db.Uuid @default(uuid())
+
+  //relations
+  taskId String @db.Uuid @map("task_id")
+  task Task @relation(fields: [taskId], references: [id])
+
+  fileId String @db.Uuid @map("file_id")
+  file File @relation(fields: [fileId], references: [id])
+
+  @@unique([taskId, fileId])
+  @@index([taskId, fileId])
+  @@index([taskId])
+}
+
+model Comment {
+  id String @id @db.Uuid @default(uuid())
+  text String @db.Text
+  createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
+  updatedAt DateTime @db.Timestamp() @updatedAt @map("updated_at")
+
+  //relations
+  createdById String @db.Uuid @map("created_by_id")
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  commentFiles CommentFile[]
+  issueComment IssueComment[]
+  taskComment TaskComment[]
+
+  @@index([createdById])
+}
+
+model CommentFile {
+  id String @id @db.Uuid @default(uuid())
+
+  //relations
+  commentId String @db.Uuid @map("comment_id")
+  comment Comment @relation(fields: [commentId], references: [id])
+
+  fileId String @db.Uuid @map("file_id")
+  file File @relation(fields: [fileId], references: [id])
+
+  @@unique([commentId, fileId])
+  @@index([commentId])
+}
+
+model IssueComment {
+  id String @id @db.Uuid @default(uuid())
+
+  //relations
+  commentId String @db.Uuid @map("comment_id")
+  comment Comment @relation(fields: [commentId], references: [id])
+
+  issueId String @db.Uuid @map("issue_id")
+  issue Issue @relation(fields: [issueId], references: [id])
+
+  @@unique([commentId, issueId])
+  @@index([issueId])
+}
+
+model TaskComment {
+  id String @id @db.Uuid @default(uuid())
+
+  //relations
+  commentId String @db.Uuid @map("comment_id")
+  comment Comment @relation(fields: [commentId], references: [id])
+
+  taskId String @db.Uuid @map("task_id")
+  task Task @relation(fields: [taskId], references: [id])
+
+  @@unique([taskId, commentId])
+  @@index([taskId])
+}
+
+
+
