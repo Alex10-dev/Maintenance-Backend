@@ -29,8 +29,8 @@ model User {
   id String @id @db.Uuid @default(uuid())
   name String @db.VarChar(50)
   lastName String @db.VarChar(50) @map("last_name")
-  birthdate DateTime @db.Timestamp()
-  gender String @db.VarChar(10) @default("UNSPECIFIED")
+  birthdate DateTime? @db.Timestamp()
+  gender String @db.VarChar(20) @default("UNSPECIFIED")
   createdAt DateTime @db.Timestamp() @default(now()) @map("created_at")
   isActive Boolean @db.Boolean @default(true) @map("is_active")
 
@@ -65,7 +65,7 @@ model UserRole {
 
 model Auth {
   id String @id @db.Uuid @default(uuid())
-  providerId String? @db.VarChar(255)
+  providerId String @db.VarChar(255)
   password String? @db.VarChar(128)
   validated Boolean @db.Boolean @default(false)
   isActive Boolean @db.Boolean @default(true) @map("is_active")

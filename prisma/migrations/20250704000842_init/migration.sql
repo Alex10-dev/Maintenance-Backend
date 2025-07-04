@@ -14,8 +14,8 @@ CREATE TABLE "User" (
     "id" UUID NOT NULL,
     "name" VARCHAR(50) NOT NULL,
     "last_name" VARCHAR(50) NOT NULL,
-    "birthdate" TIMESTAMP NOT NULL,
-    "gender" VARCHAR(10) NOT NULL DEFAULT 'UNSPECIFIED',
+    "birthdate" TIMESTAMP,
+    "gender" VARCHAR(20) NOT NULL DEFAULT 'UNSPECIFIED',
     "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "photo_id" UUID,
@@ -35,7 +35,7 @@ CREATE TABLE "UserRole" (
 -- CreateTable
 CREATE TABLE "Auth" (
     "id" UUID NOT NULL,
-    "providerId" VARCHAR(255),
+    "providerId" VARCHAR(255) NOT NULL,
     "password" VARCHAR(128),
     "validated" BOOLEAN NOT NULL DEFAULT false,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
