@@ -4,6 +4,7 @@ import { EnvConfig, Envs, ValidationSchema } from './config/env.config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    CommonModule
   ],
   providers: [EnvConfig],
   exports: [EnvConfig]

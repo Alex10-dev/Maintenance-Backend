@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { RegisterWithCredentialsUseCase } from './use-cases/register-with-credentials.use-case';
 import { UsersModule } from 'src/users/users.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   controllers: [AuthController],
@@ -15,6 +16,7 @@ import { UsersModule } from 'src/users/users.module';
   imports: [
     PrismaModule,
     UsersModule,
+    CommonModule,
   ]
 })
 export class AuthModule {}

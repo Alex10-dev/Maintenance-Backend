@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from 'generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -10,13 +11,15 @@ export class UsersService {
     private readonly prismaService: PrismaService,
   ){}
 
-  async create(data: Partial<User>) {
-    return await this.prismaService.user.create({
+  async create(data: Partial<User>): Promise<UserEntity> {
+    const newUser = await this.prismaService.user.create({
       data: {
         name: data.name!,
         lastName: data.lastName!,
       }
-    })
+    });
+
+    return UserEntity.fromDB( newUser );
   }
 
   findAll() {
