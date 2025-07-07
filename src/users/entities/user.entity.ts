@@ -8,7 +8,7 @@ export class UserEntity {
         public lastName: string,
         public gender: string,
         public createdAt: Date,
-        public isActivre: Boolean,
+        public isActive: Boolean,
         public photoId?: String, 
         public birthdate?: Date,
     ){}

@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { RegisterWithCredentialsUseCase } from './use-cases/register-with-credentials.use-case';
 import { RegisterWithCredentialsDTO } from './dto/register-with-credentials.dto';
+import { LoginWithCredentialsDTO } from './dto/login-with-credentials.dto';
+import { LoginWithCredentialsUseCase } from './use-cases/login-with-credentials.use-case';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -10,14 +13,21 @@ export class AuthController {
     private readonly authService: AuthService,
 
     private readonly registerWithCredentialsUseCase: RegisterWithCredentialsUseCase,
+    private readonly loginWithCredentialUseCase: LoginWithCredentialsUseCase,
   ) {}
 
   @Post('/credentials')
   register(@Body() registerDto: RegisterWithCredentialsDTO) {
-    return this.registerWithCredentialsUseCase.execute(registerDto)
+    return this.registerWithCredentialsUseCase.execute(registerDto);
   }
 
-  @Get()
+  @Post('/login-credentials')
+  loginWithCredentials(@Body() loginDto: LoginWithCredentialsDTO) {
+    return this.loginWithCredentialUseCase.execute( loginDto );
+  }
+
+  @Get('/private')
+  @UseGuards( AuthGuard('jwt') )
   findAll() {
     return this.authService.findAll();
   }

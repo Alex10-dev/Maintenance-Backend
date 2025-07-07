@@ -32,6 +32,9 @@ export class AuthService {
       where: {
         providerId: email,
         type: type,
+      },
+      include: {
+        user: true,
       }
     });
   }

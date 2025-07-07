@@ -8,11 +8,11 @@ export class BcryptAdapter implements HashingService {
     private readonly rounds = 10;
 
     async hash(input: string): Promise<string> {
-        return await bcrypt.hash(input, this.rounds);
+        return await bcrypt.hashSync(input, this.rounds);
     }
 
     async compare(input: string, hashed: string): Promise<Boolean> {
-        return await bcrypt.compare(input, hashed);
+        return await bcrypt.compareSync(input, hashed);
     }
 
 
