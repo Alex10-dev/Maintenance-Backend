@@ -36,7 +36,7 @@ export class LoginWithCredentialsUseCase {
                 sub: authUser.user.id
             });
 
-            console.log('token',  token)
+            // console.log('token',  token)
 
             return {
                 ...authUser.toResponse(),

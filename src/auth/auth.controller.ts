@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { RegisterWithCredentialsUseCase } from './use-cases/register-with-credentials.use-case';
@@ -6,6 +6,9 @@ import { RegisterWithCredentialsDTO } from './dto/register-with-credentials.dto'
 import { LoginWithCredentialsDTO } from './dto/login-with-credentials.dto';
 import { LoginWithCredentialsUseCase } from './use-cases/login-with-credentials.use-case';
 import { AuthGuard } from '@nestjs/passport';
+import { getAuthUser } from 'src/common/decorators/get-auth-user.decorator';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { CheckAuthStatusUseCase } from './use-cases/check-auth-status.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -14,6 +17,7 @@ export class AuthController {
 
     private readonly registerWithCredentialsUseCase: RegisterWithCredentialsUseCase,
     private readonly loginWithCredentialUseCase: LoginWithCredentialsUseCase,
+    private readonly checkStatus: CheckAuthStatusUseCase,
   ) {}
 
   @Post('/credentials')
@@ -26,10 +30,22 @@ export class AuthController {
     return this.loginWithCredentialUseCase.execute( loginDto );
   }
 
+  @Post('/check-status')
+  @UseGuards( AuthGuard('jwt') )
+  checkAuthStatus(
+    @getAuthUser() user: UserEntity
+  ) {
+    return this.checkStatus.execute(user);
+  }
+
   @Get('/private')
   @UseGuards( AuthGuard('jwt') )
-  findAll() {
-    return this.authService.findAll();
+  findAll(
+    @getAuthUser() user: UserEntity
+  ) {
+    return {
+      user
+    };
   }
 
   @Get(':id')

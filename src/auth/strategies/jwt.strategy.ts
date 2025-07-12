@@ -27,7 +27,7 @@ export class JwtStrategy extends PassportStrategy( Strategy, 'jwt' ) {
     async validate( payload: JwtPayload ): Promise<UserEntity>{
         
         const { sub } = payload;
-        console.log(`ejecutando validacion de usuario: ${payload.sub}`);
+        // console.log(`ejecutando validacion de usuario: ${payload.sub}`);
         const result = await this.userService.findOne(sub);
         if( !result ) throw new UnauthorizedException('Token no valid');
         if( !result.isActive ) throw new UnauthorizedException('Inactive user, talk with an admin');
