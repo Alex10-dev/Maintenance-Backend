@@ -6,6 +6,8 @@ import { AuthType } from "src/common/enums/auth-type.enum";
 import { PrismaService } from "src/prisma/prisma.service";
 import { BcryptAdapter } from "src/common/adapters/bcrypt.adapter";
 import { JwtAdapter } from "src/common/adapters/jwt.adapter";
+import { RoleService } from "src/role/role.service";
+import { UserEntity } from "src/users/entities/user.entity";
 
 @Injectable()
 export class RegisterWithCredentialsUseCase {
@@ -16,6 +18,7 @@ export class RegisterWithCredentialsUseCase {
         private readonly prismaService: PrismaService,
         private readonly hashingService: BcryptAdapter,
         private readonly jwtService: JwtAdapter,
+        private readonly roleService: RoleService,
     ){}
 
     async execute(registerDto: RegisterWithCredentialsDTO) {
@@ -26,12 +29,15 @@ export class RegisterWithCredentialsUseCase {
 
             const hashedPassword = await this.hashingService.hash(registerDto.password)
 
+            const userRole = await this.roleService.findOneByName('user');
+            if( !userRole ) throw new InternalServerErrorException(`User role doesn't exist`);
+
             const user = await this.prismaService.$transaction(async () => {
 
                 const newUser = await this.userService.create({
                     name: registerDto.name,
                     lastName: registerDto.lastName,
-                });
+                }, userRole.id);
 
                 await this.authService.create({
                     email: registerDto.email,
@@ -43,13 +49,14 @@ export class RegisterWithCredentialsUseCase {
             });
 
             if( !user ) throw new InternalServerErrorException(`Talk with an admin`);
+            const newUser = UserEntity.fromDB(user);
 
             const token = this.jwtService.generateToken({
                 sub: user.id
             });
 
             return {
-                user,
+                user: newUser,
                 token,
             }
 

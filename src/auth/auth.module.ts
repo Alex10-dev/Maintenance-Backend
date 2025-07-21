@@ -9,6 +9,7 @@ import { LoginWithCredentialsUseCase } from './use-cases/login-with-credentials.
 import { ConfigAppModule } from 'src/config/config.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { CheckAuthStatusUseCase } from './use-cases/check-auth-status.use-case';
+import { RoleModule } from 'src/role/role.module';
 
 @Module({
   controllers: [AuthController],
@@ -25,7 +26,7 @@ import { CheckAuthStatusUseCase } from './use-cases/check-auth-status.use-case';
     UsersModule,
     CommonModule,
     ConfigAppModule,
-    
+    RoleModule
   ],
   exports: [JwtStrategy]
 })

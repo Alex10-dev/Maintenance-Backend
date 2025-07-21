@@ -34,7 +34,15 @@ export class AuthService {
         type: type,
       },
       include: {
-        user: true,
+        user: {
+          include: {
+            userRoles: {
+              include: {
+                role: true,
+              }
+            }
+          }
+        },
       }
     });
   }

@@ -31,12 +31,10 @@ export class LoginWithCredentialsUseCase {
                 throw new UnauthorizedException(`Incorrect email or password`);
 
             const authUser = AuthUserEntity.fromDB( existedAuth );
-
+            
             const token = this.jwtService.generateToken({
                 sub: authUser.user.id
             });
-
-            // console.log('token',  token)
 
             return {
                 ...authUser.toResponse(),
