@@ -1,22 +1,19 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { EnvConfig, Envs, ValidationSchema } from './config/env.config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { CommonModule } from './common/common.module';
+import { ConfigAppModule } from './config/config.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [ Envs ],
-      validationSchema: ValidationSchema,
-      isGlobal: true,
-    }),
+    ConfigAppModule,
     PrismaModule,
     AuthModule,
     UsersModule,
-  ],
-  providers: [EnvConfig],
-  exports: [EnvConfig]
+    CommonModule,
+    RoleModule,
+  ]
 })
 export class AppModule {}

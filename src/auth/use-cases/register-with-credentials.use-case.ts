@@ -4,6 +4,10 @@ import { AuthService } from "../auth.service";
 import { UsersService } from "src/users/users.service";
 import { AuthType } from "src/common/enums/auth-type.enum";
 import { PrismaService } from "src/prisma/prisma.service";
+import { BcryptAdapter } from "src/common/adapters/bcrypt.adapter";
+import { JwtAdapter } from "src/common/adapters/jwt.adapter";
+import { RoleService } from "src/role/role.service";
+import { UserEntity } from "src/users/entities/user.entity";
 
 @Injectable()
 export class RegisterWithCredentialsUseCase {
@@ -12,6 +16,9 @@ export class RegisterWithCredentialsUseCase {
         private readonly authService: AuthService,
         private readonly userService: UsersService,
         private readonly prismaService: PrismaService,
+        private readonly hashingService: BcryptAdapter,
+        private readonly jwtService: JwtAdapter,
+        private readonly roleService: RoleService,
     ){}
 
     async execute(registerDto: RegisterWithCredentialsDTO) {
@@ -20,24 +27,38 @@ export class RegisterWithCredentialsUseCase {
             const existedAuth = await this.authService.findOne(registerDto.email, AuthType.CREDENTIALS);
             if( existedAuth ) throw new BadRequestException(`Emails is already registered`);
 
-            return await this.prismaService.$transaction(async () => {
+            const hashedPassword = await this.hashingService.hash(registerDto.password)
+
+            const userRole = await this.roleService.findOneByName('user');
+            if( !userRole ) throw new InternalServerErrorException(`User role doesn't exist`);
+
+            const user = await this.prismaService.$transaction(async () => {
 
                 const newUser = await this.userService.create({
                     name: registerDto.name,
                     lastName: registerDto.lastName,
-                });
+                }, userRole.id);
 
-                const auth = await this.authService.create({
+                await this.authService.create({
                     email: registerDto.email,
-                    password: registerDto.password,
+                    password: hashedPassword,
                     userId: newUser.id,
                 });
 
-                return {
-                    name: newUser.name,
-                    lastName: newUser.lastName,
-                }
-            })
+                return newUser;
+            });
+
+            if( !user ) throw new InternalServerErrorException(`Talk with an admin`);
+            const newUser = UserEntity.fromDB(user);
+
+            const token = this.jwtService.generateToken({
+                sub: user.id
+            });
+
+            return {
+                user: newUser,
+                token,
+            }
 
         } catch( error ) {
             if( error instanceof HttpException ) throw error;
