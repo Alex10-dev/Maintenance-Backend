@@ -9,6 +9,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { getAuthUser } from 'src/common/decorators/get-auth-user.decorator';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { CheckAuthStatusUseCase } from './use-cases/check-auth-status.use-case';
+import { UserRolesGuard } from 'src/common/guards/user-roles.guard';
+import { RoleProtected } from 'src/common/decorators/role-protected.decorator';
+import { Auth } from 'src/common/decorators/auth.decorator';
+import { RequiredRoles } from 'src/common/enums/required-roles';
 
 @Controller('auth')
 export class AuthController {
@@ -39,7 +43,7 @@ export class AuthController {
   }
 
   @Get('/private')
-  @UseGuards( AuthGuard('jwt') )
+  @Auth(RequiredRoles.ADMIN)
   findAll(
     @getAuthUser() user: UserEntity
   ) {
