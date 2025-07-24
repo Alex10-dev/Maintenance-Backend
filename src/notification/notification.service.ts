@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 interface ConnectedClients {
-    [id: string]: Socket
+    [id: string]: {
+        socket: Socket,
+        user: UserEntity,
+    }
 }
 
 @Injectable()
@@ -10,15 +14,20 @@ export class NotificationService {
 
     private connectedClients: ConnectedClients = {}
 
-    registerClient(client: Socket) {
-        this.connectedClients[client.id] = client;
+    registerClient(client: Socket, user: UserEntity) {
+        this.connectedClients[client.id] = {
+            socket: client,
+            user: user,
+        };
     }
 
     removeClient(clientId: string) {
         delete this.connectedClients[clientId];
     }
 
-    getConnectedClients(): string[] {
-        return Object.keys( this.connectedClients );
+    getConnectedClients(): [string, string][] {
+        return Object.values( this.connectedClients ).map(
+            (value) => [value.socket.id, value.user.name + ' ' + value.user.lastName]
+        );
     }
 }
