@@ -14,4 +14,8 @@ export class JwtAdapter implements jwtAdapterService{
         return this.jwtService.sign(payload, { expiresIn: '2h'});
     }
 
+    validateToken(token: string): JwtPayload {
+        return this.jwtService.verify(token);
+    }
+
 }
