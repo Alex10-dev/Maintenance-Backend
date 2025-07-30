@@ -29,6 +29,11 @@ Users can create a report for a problem, which will be handled in collaboration 
     POSTGRES_DB
     POSTGRES_PORT
     POSTGRES_PASSWORD
+    JWT_SECRET
+    AWS_BUCKET_NAME
+    AWS_BUCKET_REGION
+    AWS_ACCESS_KEY
+    AWS_SECRET_ACCESS_KEY
     ```
 2. Install the project dependencies:
 

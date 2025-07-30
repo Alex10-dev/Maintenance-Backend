@@ -6,6 +6,7 @@ import { CommonModule } from './common/common.module';
 import { ConfigAppModule } from './config/config.module';
 import { RoleModule } from './role/role.module';
 import { NotificationModule } from './notification/notification.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NotificationModule } from './notification/notification.module';
     CommonModule,
     RoleModule,
     NotificationModule,
+    FilesModule,
   ]
 })
 export class AppModule {}
