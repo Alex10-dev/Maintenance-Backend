@@ -1,4 +1,4 @@
-import { PutObjectCommand, PutObjectCommandOutput, S3Client } from '@aws-sdk/client-s3'
+import { ListObjectsCommand, PutObjectCommand, PutObjectCommandOutput, S3Client } from '@aws-sdk/client-s3'
 import { Injectable } from '@nestjs/common';
 import { EnvConfig } from 'src/config/env.config';
 
@@ -29,5 +29,12 @@ export class AwsS3Adapter {
                 ContentType: contentType,
             }),
         );
+    }
+
+    async getFiles() {
+        const command = new ListObjectsCommand({
+            Bucket: this.bucketName,
+        });
+        return await this.s3.send( command );
     }
 }

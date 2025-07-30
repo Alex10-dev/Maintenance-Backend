@@ -24,4 +24,19 @@ export class FilesService {
             throw new InternalServerErrorException('An Error ocurred while uploading the file');
         }
     }
+
+    async getFiles() {
+
+        try{
+            const files = await this.S3.getFiles();
+            if( files.$metadata.httpStatusCode !== 200 )
+                throw new InternalServerErrorException('S3 get files failed');
+            // console.log(files);
+            return files.Contents
+
+        } catch( error ) {
+             throw new InternalServerErrorException('An Error ocurred while getting the files');
+        }
+        
+    }
 }
