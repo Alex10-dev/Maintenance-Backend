@@ -11,6 +11,7 @@ export const ValidationSchema = Joi.object({
     AWS_BUCKET_REGION: Joi.string().required(),
     AWS_ACCESS_KEY: Joi.string().required(),
     AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+    DISCORD_WEBHOOK_HISTORICAL: Joi.string().required(),
 });
 
 export const Envs = () => ({
@@ -21,7 +22,8 @@ export const Envs = () => ({
     aws_bucket_name: process.env.AWS_BUCKET_NAME,
     aws_bucket_region: process.env.AWS_BUCKET_REGION,
     aws_access_key: process.env.AWS_ACCESS_KEY,
-    aws_secret_access_key: process.env.AWS_SECRET_ACCESS_KEY
+    aws_secret_access_key: process.env.AWS_SECRET_ACCESS_KEY,
+    discord_webhook_historical: process.env.DISCORD_WEBHOOK_HISTORICAL,
 });
 
 @Injectable()
@@ -34,6 +36,7 @@ export class EnvConfig {
     public readonly aws_bucket_region: string;
     public readonly aws_access_key: string;
     public readonly aws_secret_access_key: string;
+    public readonly discord_webhook_historical: string;
 
     constructor( private configService: ConfigService ){
         this.environment = this.configService.get<string>('environment', 'dev');
@@ -44,5 +47,6 @@ export class EnvConfig {
         this.aws_bucket_region = this.configService.get<string>('aws_bucket_region')!;
         this.aws_access_key = this.configService.get<string>('aws_access_key')!;
         this.aws_secret_access_key = this.configService.get<string>('aws_secret_access_key')!;
+        this.discord_webhook_historical = this.configService.get<string>('discord_webhook_historical')!;
     }
 };
