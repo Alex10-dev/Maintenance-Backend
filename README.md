@@ -34,6 +34,11 @@ Users can create a report for a problem, which will be handled in collaboration 
     AWS_BUCKET_REGION
     AWS_ACCESS_KEY
     AWS_SECRET_ACCESS_KEY
+    DISCORD_WEBHOOK_HISTORICAL
+    DISCORD_WEBHOOK_USERS
+    DISCORD_WEBHOOK_REPORTS
+    DISCORD_WEBHOOK_AWS
+    DISCORD_WEBHOOK_TASKS
     ```
 2. Install the project dependencies:
 

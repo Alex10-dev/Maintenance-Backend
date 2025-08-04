@@ -11,6 +11,11 @@ export const ValidationSchema = Joi.object({
     AWS_BUCKET_REGION: Joi.string().required(),
     AWS_ACCESS_KEY: Joi.string().required(),
     AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+    DISCORD_WEBHOOK_HISTORICAL: Joi.string().required(),
+    DISCORD_WEBHOOK_USERS: Joi.string().required(),
+    DISCORD_WEBHOOK_REPORTS: Joi.string().required(),
+    DISCORD_WEBHOOK_AWS: Joi.string().required(),
+    DISCORD_WEBHOOK_TASKS: Joi.string().required(),
 });
 
 export const Envs = () => ({
@@ -21,7 +26,12 @@ export const Envs = () => ({
     aws_bucket_name: process.env.AWS_BUCKET_NAME,
     aws_bucket_region: process.env.AWS_BUCKET_REGION,
     aws_access_key: process.env.AWS_ACCESS_KEY,
-    aws_secret_access_key: process.env.AWS_SECRET_ACCESS_KEY
+    aws_secret_access_key: process.env.AWS_SECRET_ACCESS_KEY,
+    discord_webhook_historical: process.env.DISCORD_WEBHOOK_HISTORICAL,
+    discord_webhook_users: process.env.DISCORD_WEBHOOK_USERS,
+    discord_webhook_reports: process.env.DISCORD_WEBHOOK_REPORTS,
+    discord_webhook_aws: process.env.DISCORD_WEBHOOK_AWS,
+    discord_webhook_tasks: process.env.DISCORD_WEBHOOK_TASKS,
 });
 
 @Injectable()
@@ -34,6 +44,11 @@ export class EnvConfig {
     public readonly aws_bucket_region: string;
     public readonly aws_access_key: string;
     public readonly aws_secret_access_key: string;
+    public readonly discord_webhook_historical: string;
+    public readonly discord_webhook_users: string;
+    public readonly discord_webhook_reports: string;
+    public readonly discord_webhook_aws: string;
+    public readonly discord_webhook_tasks: string;
 
     constructor( private configService: ConfigService ){
         this.environment = this.configService.get<string>('environment', 'dev');
@@ -44,5 +59,10 @@ export class EnvConfig {
         this.aws_bucket_region = this.configService.get<string>('aws_bucket_region')!;
         this.aws_access_key = this.configService.get<string>('aws_access_key')!;
         this.aws_secret_access_key = this.configService.get<string>('aws_secret_access_key')!;
+        this.discord_webhook_historical = this.configService.get<string>('discord_webhook_historical')!;
+        this.discord_webhook_users = this.configService.get<string>('discord_webhook_users')!;
+        this.discord_webhook_reports = this.configService.get<string>('discord_webhook_reports')!;
+        this.discord_webhook_aws = this.configService.get<string>('discord_webhook_aws')!;
+        this.discord_webhook_tasks = this.configService.get<string>('discord_webhook_tasks')!;
     }
 };

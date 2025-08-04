@@ -7,6 +7,7 @@ import { ConfigAppModule } from './config/config.module';
 import { RoleModule } from './role/role.module';
 import { NotificationModule } from './notification/notification.module';
 import { FilesModule } from './files/files.module';
+import { ExternalNotificationsModule } from './external-notifications/external-notifications.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FilesModule } from './files/files.module';
     RoleModule,
     NotificationModule,
     FilesModule,
+    ExternalNotificationsModule,
   ]
 })
 export class AppModule {}
