@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DiscordNotifier } from './channels/discord.notifier';
-import { createHistoricalJSON } from './helpers/discord-json-templates.helper';
-import { WebhookChannel } from './enums/notification-types.enum';
+import { NotificationSource, WebhookChannel } from './enums/notification-types.enum';
+import { DiscordPayloadService } from './channels/discord-payload';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class ExternalNotificationsService {
@@ -10,14 +11,13 @@ export class ExternalNotificationsService {
         private readonly discord: DiscordNotifier,
     ){}
 
-    async sendNotification( message: string, channel: WebhookChannel ): Promise<Boolean> {
+    async sendNotification( user: UserEntity, channel: WebhookChannel, message: string, source: NotificationSource ){
 
-        const body = createHistoricalJSON({
-            message: message,
-            username: "Alexis Orozco",
-            email: "alexisorozco@gmail.com",
-            module: "Usuarios"
+        const payload = DiscordPayloadService.createRecord(source, {
+            title: message,
+            user,
+            module: source
         });
-        return await this.discord.notify( body, channel );
+        return await this.discord.notify( payload, channel );
     }
 }
