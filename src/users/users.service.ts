@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from 'generated/prisma';
+import { Role, User } from 'generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -16,23 +16,25 @@ export class UsersService {
         name: data.name!,
         lastName: data.lastName!,
         userRoles: {
-          create: {
-            roleId: roleId
-          }
+          create: { roleId: roleId }
         }
       },
       include: {
         userRoles: {
-          include: {
-            role: true,
-          }
+          include: { role: true }
         }
       }
     });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    return await this.prismaService.user.findMany({
+      include: {
+        userRoles: {
+          include: { role: true }
+        }
+      }
+    });
   }
 
   async findOne(id: string) {
@@ -40,9 +42,7 @@ export class UsersService {
       where: { id },
       include: {
         userRoles: {
-          include: {
-            role: true,
-          }
+          include: { role: true }
         }
       }
     });
@@ -54,5 +54,30 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async findOneWithRole(userId: string, roleId: string) {
+    return await this.prismaService.userRole.findFirst({
+      where: { userId, roleId },
+      include: { role: true }
+    });
+  }
+
+  async addRoleToUser(userId: string, roleId: string): Promise<Role> {
+    const addedRole = await this.prismaService.userRole.create({
+      data: {userId, roleId},
+      include: { role: true }
+    });
+    return addedRole.role;
+  }
+
+  async removeRoleFromUser(userId: string, roleId: string): Promise<Role> {
+    const removedRole = await this.prismaService.userRole.delete({
+      where: {
+        userId_roleId: {userId, roleId},
+      },
+      include: {role: true},
+    });
+    return removedRole.role;
   }
 }
