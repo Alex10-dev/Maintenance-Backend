@@ -3,6 +3,7 @@ import { DiscordNotifier } from './channels/discord.notifier';
 import { NotificationSource, WebhookChannel } from './enums/notification-types.enum';
 import { DiscordPayloadService } from './channels/discord-payload';
 import { UserEntity } from 'src/users/entities/user.entity';
+import { IssueEntity } from 'src/issues/entities/issue.entity';
 
 @Injectable()
 export class ExternalNotificationsService {
@@ -11,13 +12,14 @@ export class ExternalNotificationsService {
         private readonly discord: DiscordNotifier,
     ){}
 
-    async sendNotification( user: UserEntity, channel: WebhookChannel, message: string, source: NotificationSource ){
+    async notifyIssueActivity(issue: IssueEntity, user: UserEntity, title: string ) {
 
-        const payload = DiscordPayloadService.createRecord(source, {
-            title: message,
+        const payload = DiscordPayloadService.createIssueRecord({
+            issue,
             user,
-            module: source
-        });
-        return await this.discord.notify( payload, channel );
+            title,
+            source: NotificationSource.ISSUES
+        })
+        return await this.discord.notify( payload, WebhookChannel.REPORTS );
     }
 }

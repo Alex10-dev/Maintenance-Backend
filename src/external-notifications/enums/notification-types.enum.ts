@@ -7,6 +7,7 @@ export enum NotificationSource {
     ROLES = 'Roles',
     FILES = 'Files',
     AWS_S3 = 'AWS S3',
+    ISSUES = 'Issues',
 }
 
 export enum WebhookChannel {

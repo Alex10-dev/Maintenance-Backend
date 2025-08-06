@@ -2,6 +2,7 @@ import { UserEntity } from "src/users/entities/user.entity";
 import { DiscordEmbedBuilder } from "../builders/discord-embed.builder";
 import { DiscordPayload, DiscordPayloadBuilder } from "../builders/discord-payload.builder";
 import { NotificationSource, WebhookChannel } from "../enums/notification-types.enum";
+import { IssueEntity } from "src/issues/entities/issue.entity";
 
 interface dataToPayload {
     title?: string,
@@ -68,17 +69,33 @@ export class DiscordPayloadService {
         return payload;
     }
 
-    static createRecord(source: NotificationSource, data: dataToPayload): DiscordPayload {
+    static createIssueRecord(data: {
+        title: string,
+        issue: IssueEntity,
+        user: UserEntity,
+        source: NotificationSource,
+    }) {
+        const embed = new DiscordEmbedBuilder()
+            .setTitle(data.title)
+            .setDescription(data.issue.description)
+            .setAuthor(`${data.user.name} ${data.user.lastName}`, undefined, "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDFpemZmNHRxMWQwbjhnY3Rqc2k3cDF4dDJ3MnUxemR0N3luOXd5byZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Yun6k1ndbzayx21xgK/giphy.gif")
+            .setThumbnail("https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDMyenZzNWp4c3ZqcnJzbHdsMnA2YWlmdWI5ZHRvdGphMjNzYnR0NyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnemOMkMyeOpYcg/giphy.gif")
+            .addField('Issue ID', data.issue.id)
+            .addField("Device", data.issue.deviceType, true)
+            .addField("Status", data.issue.status, true)
+            .addField("Completed", `${data.issue.isCompleted}`, true)
+            .addField("Created At", data.issue.createdAt.toISOString().split('T')[0], true)
+            .addField("Updated At", data.issue.updatedAt.toISOString().split('T')[0], true)
+            .setFooter(data.source)
+            .setTimestamp( new Date().toISOString() )
+            .build()
+        
+        const payload = new DiscordPayloadBuilder()
+            .setEmbed( embed )
+            .build();
 
-        switch( source ) {
-            case NotificationSource.REPORTS:
-                return this.createHistoricalRecord(data);
-            case NotificationSource.USERS:
-                return this.createUsersRecord(data);
-            case NotificationSource.AUTH:
-                return this.createAuthRecord(data);
-            default:
-                return this.createHistoricalRecord(data);
-        }
+        return payload
     }
+
+    
 }
