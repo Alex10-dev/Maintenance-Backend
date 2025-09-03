@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class IssuesService {
@@ -27,19 +28,65 @@ export class IssuesService {
     });
   }
 
-  findAll() {
-    return `This action returns all issues`;
+  async findAll( paginationDto: PaginationDto ) {
+
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    return await this.prismaService.issue.findMany({
+      take: limit,
+      skip: offset,
+      orderBy: { createdAt: 'desc' }
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} issue`;
+  async findAllCreatedBy( paginationDto: PaginationDto, userId: string ) {
+
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    return await this.prismaService.issue.findMany({
+      take: limit,
+      skip: offset,
+      orderBy: { createdAt: 'desc' },
+      where: { createdById: userId }
+    });
   }
 
-  update(id: number, updateIssueDto: UpdateIssueDto) {
-    return `This action updates a #${id} issue`;
+  async findOne(id: string) {
+    return await this.prismaService.issue.findUnique({
+      where: { id },
+      include: {
+        issueFiles: {
+          include: { file: true }
+        },
+      }
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} issue`;
+  async update(id: string, updateIssueDto: UpdateIssueDto) {
+    return await this.prismaService.issue.update({
+      where: { id },
+      data: { ...updateIssueDto },
+    })
+  }
+
+  async remove(id: string) {
+    return await this.prismaService.issue.delete({
+      where: { id }
+    });
+  }
+
+  async relateFileToIssue(issueId: string, fileId: string) {
+    return await this.prismaService.issueFile.create({
+      data: {
+        fileId,
+        issueId,
+      },
+      include: {
+        issue: true,
+        file: {
+          include: { uploadedBy: true }
+        },
+      }
+    });
   }
 }
